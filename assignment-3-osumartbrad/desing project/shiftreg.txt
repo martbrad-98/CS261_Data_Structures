@@ -1,0 +1,343 @@
+/*module shiftreg #(parameter N = 11)
+						(input logic clk,
+						 input logic reset,
+						 input logic data,
+						 output logic ([1:8]q),
+						 output logic ;
+						 
+	always_ff @ (posedge clk, posedge reset)
+		if(reset) q<=0;
+		else q<= {q[N-2:0]};
+		
+	
+endmodule*/
+
+/*module shiftreg #(parameter N=11)
+					(input logic d,
+					input logic clk,
+					input logic en,
+					input logic reset,
+					output logic [N -1:0]q);
+					
+	always @ (poseedge clk)
+		if(!reset)
+			q <=0;
+		else begin
+			if(en)
+				q <= {q[N-2:0], d};
+		else 
+			q<= q;
+		end
+		
+endmodule*/
+
+module shiftreg #(parameter N=11)
+					(input logic d,
+					input logic clk,
+					input logic en,
+					input logic reset,
+					output logic [N-1:0]q);
+    logic [N-1:0] r_reg;
+    logic [N-1:0] r_next;
+					
+	always @ (negedge clk, posedge reset)
+        begin
+		    if(!reset) 
+				r_reg <= 0; 
+			
+			else 
+				r_reg <= r_next ; 
+		end 
+		
+		assign r_next = {d, r_reg[N-1:1]};
+		assign 
+            
+
+endmodule
+
+
+module sipo #(parameter N = 11)
+(input logic a, clk, rst, output logic [N-1:0]q);
+
+reg [N-1:0]temp;
+
+always@(negedge clk, posedge rst)
+begin
+	if(rst==1'b1)
+	temp<=N'b00000000;
+else
+begin
+	temp <= temp << 1'b1;
+	temp[0] <= a;
+end
+end
+
+assign q = temp;
+
+endmodule
+
+
+module IdleCounter (input logic ps2clk, clk_50Mhz, inc, output logic[4:0] Q ); 
+
+always_ff@(posedge clk)
+if(!ps2clk) Q <= 0; 
+else Q <= Q+1; 
+
+endmodule
+
+
+module IdleCounter2(input logic ps2_clk, clk_50Mhz, count, )
+
+always_ff@(posedge clk_50Mhz)
+
+begin 
+
+if(ps2_clk = 0)
+count <= 0; 
+else if(count /= clk_50Mhz/18000 && valid = 0)
+begin
+	ps2_code_new <= 1; 
+	ps2_code <= ps2_word[8:1];
+end
+else
+ps2_code_new <= 0; 
+
+end 
+
+endmodule 
+
+
+module Comparator(input logic[4:0] In, output logic Q)
+
+assign Q = (In == 4'b1011)
+
+endmodule 
+
+
+
+/*
+module ErrorCheck(input logic [10:0] data, output logic valid)
+
+assign valid = 0; 
+
+logic start = data[0];
+logic parity = data[9]; 
+logic stop = data[10]; 
+logic increment count; 
+
+initial begin 
+
+for(increment = 1; increment < 8; increment++)begin
+    if(data[increment] == 1) begin
+	 count++; 
+	 end 
+end 
+end
+
+if((count == 2 || count == 4 || count == 6 || count == 8) && parity == 1)
+assign valid = 1; 
+
+else if(parity == 0 && (count ==1 || count == 3 || count == 5 || count == 7))
+assign valid = 1; 
+
+
+
+if(start == 1 || stop == 0)
+assign valid = 0; 
+
+endmodule 
+*/ 
+
+
+module ErrorCheck2(input logic [10:0]data, output logic valid)
+
+assign valid = ~(~data[0] && data[10] && (data[9] ^ data[8] ^ 
+data[7] ^ data[6] ^data[5] ^ data[4] ^ data[3] ^ data[3] ^ 
+data[2] ^data[2] ^ data[1])); 
+
+endmodule
+
+/*
+module piso(clk,rst,a,q);
+input clk,rst;
+input [3:0]a;
+output q;
+reg q;
+reg [3:0]temp;
+always@(posedge clk,posedge rst)
+begin
+if(rst==1'b1)
+begin
+q<=1'b0;
+temp<=a;
+end
+else
+begin
+q<=temp[0];
+temp <= temp>>1'b1;
+end
+end
+endmodule
+*/
+module Simulator(input logic clock,
+                input logic[7..0] in,
+                output logic data);
+logic [3..0] c;
+logic [3..0] i;
+
+for(i = 0; i < 7; i++)begin
+	if(in[i]==1) i = i + 1;
+end
+
+assign c = 0;
+always_ff@(posedge clock)
+begin
+	if(c > 0 && c < 9)
+    	begin
+        data <= in[c-1];
+        c <= c +1;
+    	end
+	else if(c==9)
+    begin
+        if(~(i%2) data <= 1;
+		else data <= 0;
+		c <= c+1;
+    end
+	else if(c==10)
+    begin
+        data <= 1;
+        c <= 0;
+    end
+	else
+    begin
+        data <= 0;
+        c <= c+1;
+    end
+end
+endmodule
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//   FileName:         ps2_keyboard.vhd
+//   Dependencies:     debounce.vhd
+//   Design Software:  Quartus II 32-bit Version 12.1 Build 177 SJ Full Version
+//
+//   HDL CODE IS PROVIDED "AS IS."  DIGI-KEY EXPRESSLY DISCLAIMS ANY
+//   WARRANTY OF ANY KIND, WHETHER EXPRESS OR IMPLIED, INCLUDING BUT NOT
+//   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+//   PARTICULAR PURPOSE, OR NON-INFRINGEMENT. IN NO EVENT SHALL DIGI-KEY
+//   BE LIABLE FOR ANY INCIDENTAL, SPECIAL, INDIRECT OR CONSEQUENTIAL
+//   DAMAGES, LOST PROFITS OR LOST DATA, HARM TO YOUR EQUIPMENT, COST OF
+//   PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR SERVICES, ANY CLAIMS
+//   BY THIRD PARTIES (INCLUDING BUT NOT LIMITED TO ANY DEFENSE THEREOF),
+//   ANY CLAIMS FOR INDEMNITY OR CONTRIBUTION, OR OTHER SIMILAR COSTS.
+//
+//   Version History
+//   Version 1.0 11/25/2013 Scott Larson
+//     Initial Public Release
+//    
+////////////////////////////////////////////////////////////////////////////////
+
+LIBRARY ieee;
+USE ieee.std_logic_1164.all;
+
+ENTITY ps2_keyboard IS
+  GENERIC(
+    clk_freq              : INTEGER := 50_000_000; //system clock frequency in Hz
+    debounce_counter_size : INTEGER := 8);         //set such that (2^size)/clk_freq = 5us (size = 8 for 50MHz)
+  PORT(
+    clk          : IN  STD_LOGIC;                     //system clock
+    ps2_clk      : IN  STD_LOGIC;                     //clock signal from PS/2 keyboard
+    ps2_data     : IN  STD_LOGIC;                     //data signal from PS/2 keyboard
+    ps2_code_new : OUT STD_LOGIC;                     //flag that new PS/2 code is available on ps2_code bus
+    ps2_code     : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)); //code received from PS/2
+END ps2_keyboard;
+
+ARCHITECTURE logic OF ps2_keyboard IS
+  SIGNAL sync_ffs     : STD_LOGIC_VECTOR(1 DOWNTO 0);       //synchronizer flip-flops for PS/2 signals
+  SIGNAL ps2_clk_int  : STD_LOGIC;                          //debounced clock signal from PS/2 keyboard
+  SIGNAL ps2_data_int : STD_LOGIC;                          //debounced data signal from PS/2 keyboard
+  SIGNAL ps2_word     : STD_LOGIC_VECTOR(10 DOWNTO 0);      //stores the ps2 data word
+  SIGNAL error        : STD_LOGIC;                          //validate parity, start, and stop bits
+  SIGNAL count_idle   : INTEGER RANGE 0 TO clk_freq/18_000; //counter to determine PS/2 is idle
+  
+  //declare debounce component for debouncing PS2 input signals
+  COMPONENT debounce IS
+    GENERIC(
+      counter_size : INTEGER); //debounce period (in seconds) = 2^counter_size/(clk freq in Hz)
+    PORT(
+      clk    : IN  STD_LOGIC;  //input clock
+      button : IN  STD_LOGIC;  //input signal to be debounced
+      result : OUT STD_LOGIC); //debounced signal
+  END COMPONENT;
+BEGIN
+
+  //synchronizer flip-flops
+  PROCESS(clk)
+  BEGIN
+    IF(clk'EVENT AND clk = '1') THEN  //rising edge of system clock
+      sync_ffs(0) <= ps2_clk;           //synchronize PS/2 clock signal
+      sync_ffs(1) <= ps2_data;          //synchronize PS/2 data signal
+    END IF;
+  END PROCESS;
+
+  //debounce PS2 input signals
+  debounce_ps2_clk: debounce
+    GENERIC MAP(counter_size => debounce_counter_size)
+    PORT MAP(clk => clk, button => sync_ffs(0), result => ps2_clk_int);
+  debounce_ps2_data: debounce
+    GENERIC MAP(counter_size => debounce_counter_size)
+    PORT MAP(clk => clk, button => sync_ffs(1), result => ps2_data_int);
+
+  //input PS2 data
+  PROCESS(ps2_clk_int)
+  BEGIN
+    IF(ps2_clk_int'EVENT AND ps2_clk_int = '0') THEN    //falling edge of PS2 clock
+      ps2_word <= ps2_data_int & ps2_word(10 DOWNTO 1);   //shift in PS2 data bit
+    END IF;
+  END PROCESS;
+    
+  //verify that parity, start, and stop bits are all correct
+  error <= NOT (NOT ps2_word(0) AND ps2_word(10) AND (ps2_word(9) XOR ps2_word(8) XOR
+        ps2_word(7) XOR ps2_word(6) XOR ps2_word(5) XOR ps2_word(4) XOR ps2_word(3) XOR 
+        ps2_word(2) XOR ps2_word(1)));  
+
+  //determine if PS2 port is idle (i.e. last transaction is finished) and output result
+  PROCESS(clk)
+  BEGIN
+    IF(clk'EVENT AND clk = '1') THEN           //rising edge of system clock
+    
+      IF(ps2_clk_int = '0') THEN                 //low PS2 clock, PS/2 is active
+        count_idle <= 0;                           //reset idle counter
+      ELSIF(count_idle /= clk_freq/18_000) THEN  //PS2 clock has been high less than a half clock period (<55us)
+          count_idle <= count_idle + 1;            //continue counting
+      END IF;
+      
+      IF(count_idle = clk_freq/18_000 AND error = '0') THEN  //idle threshold reached and no errors detected
+        ps2_code_new <= '1';                                   //set flag that new PS/2 code is available
+        ps2_code <= ps2_word(8 DOWNTO 1);                      //output new PS/2 code
+      ELSE                                                   //PS/2 port active or error detected
+        ps2_code_new <= '0';                                   //set flag that PS/2 transaction is in progress
+      END IF;
+      
+    END IF;
+  END PROCESS;
+  
+END logic;
